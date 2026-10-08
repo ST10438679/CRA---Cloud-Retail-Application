@@ -1,0 +1,56 @@
+﻿@model CLDV6212_POE.Models.Customer
+
+@{
+    ViewData["Title"] = "Update";
+}
+
+<h1>Edit Details</h1>
+
+<h4>About the Customer</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Update">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="PartitionKey" />
+            <input type="hidden" asp-for="RowKey" />
+            <input type="hidden" asp-for="ETag" />
+            <!--The partion key, row key and etag must be hidden as the user has no influence on these attributes-->
+            <div class="form-group mb-3">
+                <label asp-for="CustomerName" class="control-label"></label>
+                <input asp-for="CustomerName" class="form-control" />
+                <span asp-validation-for="CustomerName" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="CustomerSurname" class="control-label"></label>
+                <input asp-for="CustomerSurname" class="form-control" />
+                <span asp-validation-for="CustomerSurname" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="CustomerEmail" class="control-label"></label>
+                <input asp-for="CustomerEmail" class="form-control" />
+                <span asp-validation-for="CustomerEmail" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="CustomerPassword" class="control-label"></label>
+                <input asp-for="CustomerPassword" class="form-control" />
+                <span asp-validation-for="CustomerPassword" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="CustomerNumber" class="control-label"></label>
+                <input asp-for="CustomerNumber" class="form-control" />
+                <span asp-validation-for="CustomerNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Update Customer" class="btn btn-primary me-2" />
+                <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

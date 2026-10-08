@@ -1,0 +1,210 @@
+﻿@model List<CLDV6212_POE.Models.Product>
+
+@{
+    ViewData["Title"] = "Shop";
+}
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1><i class="fas fa-shopping-bag"></i> Our Products</h1>
+            <p class="text-muted">Browse our complete product catalog</p>
+        </div>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="row">
+            @foreach (var product in Model)
+            {
+                <div class="col-md-4 col-lg-3 mb-4">
+                    <div class="card h-100 shadow-sm product-card">
+                        @if (!string.IsNullOrEmpty(product.ImageURL))
+                        {
+                            <img src="@product.ImageURL" class="card-img-top" alt="@product.ProductName" style="height: 200px; object-fit: cover;">
+                        }
+                        else
+                        {
+                            <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <i class="fas fa-box fa-3x text-white"></i>
+                            </div>
+                        }
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">@product.ProductName</h5>
+                            <p class="card-text text-muted small flex-grow-1">@product.ProductDescription</p>
+                            <p class="text-muted small mb-2">
+                                <strong>Product ID:</strong> @product.ProductNumber
+                            </p>
+
+                            @if (!string.IsNullOrEmpty(product.VideoURL))
+                            {
+                                <button class="btn btn-outline-secondary btn-sm mb-2 watch-video-btn"
+                                        data-video-url="@product.VideoURL"
+                                        data-product-name="@product.ProductName">
+                                    <i class="fas fa-play-circle"></i> Watch Video
+                                </button>
+                            }
+
+                            <!-- Quantity Control -->
+                            <div class="input-group mb-2">
+                                <button class="btn btn-outline-secondary btn-sm" type="button" onclick="decreaseQuantity('@product.ProductNumber')">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <input type="number" class="form-control form-control-sm text-center quantity-input"
+                                       id="qty-@product.ProductNumber"
+                                       value="1"
+                                       min="1"
+                                       max="99">
+                                <button class="btn btn-outline-secondary btn-sm" type="button" onclick="increaseQuantity('@product.ProductNumber')">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+
+                            <button class="btn btn-primary w-100 add-to-cart" data-product-id="@product.ProductNumber">
+                                <i class="fas fa-cart-plus"></i> Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i> No products available at the moment.
+        </div>
+    }
+</div>
+
+<!-- Video Modal -->
+<div class="modal fade" id="videoModal" tabindex="-1" aria-labelledby="videoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="videoModalLabel">Product Video</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <video id="productVideo" class="w-100" controls>
+                    <source id="videoSource" src="" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Quantity control functions
+        function increaseQuantity(productId) {
+            var input = document.getElementById('qty-' + productId);
+            var currentValue = parseInt(input.value) || 1;
+            if (currentValue < 99) {
+                input.value = currentValue + 1;
+            }
+        }
+
+        function decreaseQuantity(productId) {
+            var input = document.getElementById('qty-' + productId);
+            var currentValue = parseInt(input.value) || 1;
+            if (currentValue > 1) {
+                input.value = currentValue - 1;
+            }
+        }
+
+        $(document).ready(function() {
+            // Watch video button click
+            $('.watch-video-btn').click(function(e) {
+                e.preventDefault();
+                var videoUrl = $(this).data('video-url');
+                var productName = $(this).data('product-name');
+
+                $('#videoModalLabel').text(productName + ' - Product Video');
+                $('#videoSource').attr('src', videoUrl);
+                $('#productVideo')[0].load();
+
+                var videoModal = new bootstrap.Modal(document.getElementById('videoModal'));
+                videoModal.show();
+            });
+
+            // Stop video when modal is closed
+            $('#videoModal').on('hidden.bs.modal', function () {
+                $('#productVideo')[0].pause();
+                $('#productVideo')[0].currentTime = 0;
+            });
+
+            // Add to cart functionality
+            $('.add-to-cart').click(function() {
+                var productId = $(this).data('product-id');
+                var quantity = parseInt($('#qty-' + productId).val()) || 1;
+                var button = $(this);
+                var originalText = button.html();
+
+                button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Adding...');
+
+                $.ajax({
+                    url: '@Url.Action("AddToCart", "User")',
+                    type: 'POST',
+                    data: {
+                        productId: productId,
+                        quantity: quantity
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // Update cart count in navbar
+                            $('.badge').text(response.cartCount);
+
+                            // Temporarily show success state
+                            button.removeClass('btn-primary').addClass('btn-success')
+                                  .html('<i class="fas fa-check"></i> Added!');
+
+                            setTimeout(function() {
+                                button.addClass('btn-primary').removeClass('btn-success')
+                                      .html(originalText).prop('disabled', false);
+                            }, 1500);
+                        } else {
+                            alert(response.message);
+                            button.html(originalText).prop('disabled', false);
+                        }
+                    },
+                    error: function() {
+                        alert('Error adding product to cart');
+                        button.html(originalText).prop('disabled', false);
+                    }
+                });
+            });
+
+            // Add hover effect to product cards
+            $('.product-card').hover(
+                function() { $(this).addClass('shadow-lg'); },
+                function() { $(this).removeClass('shadow-lg'); }
+            );
+        });
+    </script>
+
+    <style>
+        .product-card {
+            transition: all 0.3s ease;
+        }
+
+            .product-card:hover {
+                transform: translateY(-5px);
+            }
+
+        .quantity-input {
+            max-width: 60px;
+        }
+
+            .quantity-input::-webkit-inner-spin-button,
+            .quantity-input::-webkit-outer-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
+
+        .quantity-input {
+            -moz-appearance: textfield;
+        }
+    </style>
+}

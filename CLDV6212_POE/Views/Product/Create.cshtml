@@ -1,0 +1,60 @@
+﻿@model CLDV6212_POE.Models.Product
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Add New</h1>
+
+<h4>Product</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group mb-3">
+                <label asp-for="ProductName" class="control-label"></label>
+                <input asp-for="ProductName" class="form-control" />
+                <span asp-validation-for="ProductName" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="ProductDescription" class="control-label"></label>
+                <input asp-for="ProductDescription" class="form-control" />
+                <span asp-validation-for="ProductDescription" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label for="imagefile">Upload Product Image</label>
+                <input type="file" name="imagefile" class="form-control" accept=".jpg,.jpeg,.png" required />
+                <small class="form-text text-muted">Please upload a JPEG or PNG image.</small>
+                @if (ViewData["ImageFileError"] != null)
+                {
+                    <span class="text-danger">@ViewData["ImageFileError"]</span>
+                }
+            </div>
+            <div class="form-group mb-3">
+                <label for="videofile">Upload Promo Video</label>
+                <input type="file" name="videofile" class="form-control" accept=".mp4,.webm,.ogg,.avi,.mov" />
+                <small class="form-text text-muted">Optional: Upload MP4, WebM, OGG, AVI, or MOV video files. Max size: 100MB.</small>
+                @if (ViewData["VideoFileError"] != null)
+                {
+                    <span class="text-danger">@ViewData["VideoFileError"]</span>
+                }
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="ProductNumber" class="control-label"></label>
+                <input asp-for="ProductNumber" class="form-control" />
+                <span asp-validation-for="ProductNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary me-2" />
+                <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -1,0 +1,102 @@
+﻿@model CLDV6212_POE.Models.Product
+
+@{
+    ViewData["Title"] = "Update";
+    ViewData["HideFooter"] = true; // this page will NOT show the footer
+}
+
+<h1>Edit Details</h1>
+
+<h4>About the Product</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Update" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="PartitionKey" />
+            <input type="hidden" asp-for="RowKey" />
+            <input type="hidden" asp-for="ETag" />
+
+            <div class="form-group mb-3">
+                <label asp-for="ProductName" class="control-label"></label>
+                <input asp-for="ProductName" class="form-control" />
+                <span asp-validation-for="ProductName" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="ProductDescription" class="control-label"></label>
+                <input asp-for="ProductDescription" class="form-control" />
+                <span asp-validation-for="ProductDescription" class="text-danger"></span>
+            </div>
+
+            <!-- Current Image Display -->
+            @if (!string.IsNullOrEmpty(Model.ImageURL))
+            {
+                <div class="form-group mb-3">
+                    <label>Current Image:</label>
+                    <div>
+                        <img src="@Model.ImageURL" alt="Current Product Image"
+                             class="img-thumbnail" style="max-width: 200px; height: auto;" />
+                    </div>
+                </div>
+            }
+
+            <div class="form-group mb-3">
+                <label for="imagefile">Update Product Image (Optional)</label>
+                <input type="file" name="imagefile" class="form-control" accept=".jpg,.jpeg,.png" />
+                <small class="form-text text-muted">Leave empty to keep current image. Upload JPEG or PNG only.</small>
+                @if (ViewData["ImageFileError"] != null)
+                {
+                    <span class="text-danger">@ViewData["ImageFileError"]</span>
+                }
+            </div>
+
+            <!-- Current Video Display -->
+            @if (!string.IsNullOrEmpty(Model.VideoURL))
+            {
+                <div class="form-group mb-3">
+                    <label>Current Promo Video:</label>
+                    <div class="video-container mb-2">
+                        <video controls style="max-width: 300px; height: auto;">
+                            <source src="@Model.VideoURL" type="video/mp4">
+                            <source src="@Model.VideoURL" type="video/webm">
+                            <source src="@Model.VideoURL" type="video/ogg">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="form-group mb-3">
+                    <p class="text-muted">No current promo video</p>
+                </div>
+            }
+
+            <div class="form-group mb-3">
+                <label for="videofile">Update Promo Video (Optional)</label>
+                <input type="file" name="videofile" class="form-control" accept=".mp4,.webm,.ogg,.avi,.mov" />
+                <small class="form-text text-muted">Leave empty to keep current video. Upload MP4, WebM, OGG, AVI, or MOV files. Max size: 100MB.</small>
+                @if (ViewData["VideoFileError"] != null)
+                {
+                    <span class="text-danger">@ViewData["VideoFileError"]</span>
+                }
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="ProductNumber" class="control-label"></label>
+                <input asp-for="ProductNumber" class="form-control" />
+                <span asp-validation-for="ProductNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <input type="submit" value="Save" class="btn btn-primary me-2" />
+                <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

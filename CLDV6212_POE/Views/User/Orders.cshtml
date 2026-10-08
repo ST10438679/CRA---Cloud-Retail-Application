@@ -1,0 +1,223 @@
+﻿@model List<(CLDV6212_POE.Models.Order order, CLDV6212_POE.Models.Product product)>
+
+@{
+    ViewData["Title"] = "My Orders";
+}
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1><i class="fas fa-receipt"></i> My Orders</h1>
+            <p class="text-muted">View your order history and track your purchases</p>
+            <hr>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            <i class="fas fa-check-circle"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="row">
+            <div class="col-12">
+                @foreach (var item in Model)
+                {
+                    var order = item.order;
+                    var product = item.product;
+
+                    <div class="card shadow-sm mb-3">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="mb-0">
+                                    <i class="fas fa-box"></i> Order #@order.OrderNumber.Substring(0, Math.Min(8, order.OrderNumber.Length))
+                                </h5>
+                                <small class="text-muted">
+                                    Placed on: @order.OrderDate?.ToString("MMMM dd, yyyy 'at' hh:mm tt")
+                                </small>
+                            </div>
+                            <div>
+                                @if (order.Status == "Proccessed")
+                                {
+                                    <span class="badge bg-primary text-dark">
+                                        <i class="fas fa-clock"></i> @order.Status
+                                    </span>
+                                }
+                                else if (order.Status == "Completed")
+                                {
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-check-circle"></i> @order.Status
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">
+                                        <i class="fas fa-info-circle"></i> @order.Status
+                                    </span>
+                                }
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            @if (product != null)
+                            {
+                                <div class="row">
+                                    <div class="col-md-2">
+                                        @if (!string.IsNullOrEmpty(product.ImageURL))
+                                        {
+                                            <img src="@product.ImageURL" class="img-fluid rounded" alt="@product.ProductName" style="max-height: 100px; object-fit: cover;">
+                                        }
+                                        else
+                                        {
+                                            <div class="bg-secondary rounded d-flex align-items-center justify-content-center" style="height: 100px;">
+                                                <i class="fas fa-box fa-2x text-white"></i>
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="col-md-7">
+                                        <h5>@product.ProductName</h5>
+                                        <p class="text-muted mb-1">@product.ProductDescription</p>
+                                        <p class="text-muted small mb-0">
+                                            <strong>Product ID:</strong> @product.ProductNumber
+                                        </p>
+                                        @if (!string.IsNullOrEmpty(product.VideoURL))
+                                        {
+                                            <button class="btn btn-sm btn-outline-info mt-2 watch-video-btn"
+                                                    data-video-url="@product.VideoURL"
+                                                    data-product-name="@product.ProductName">
+                                                <i class="fas fa-play-circle"></i> Watch Video
+                                            </button>
+                                        }
+                                    </div>
+                                    <div class="col-md-3 text-end">
+                                        <p class="mb-1"><strong>Quantity:</strong> @order.Quantity</p>
+                                        <p class="mb-1"><strong>Order Date:</strong></p>
+                                        <p class="text-muted small">@order.OrderDate?.ToString("MM/dd/yyyy")</p>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-warning mb-0">
+                                    <i class="fas fa-exclamation-triangle"></i> Product information is no longer available.
+                                    <br>
+                                    <small>Order ID: @order.OrderNumber | Product ID: @order.ProductNumber</small>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Order Statistics -->
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="card text-center shadow-sm">
+                    <div class="card-body">
+                        <i class="fas fa-shopping-bag fa-3x text-primary mb-3"></i>
+                        <h3>@Model.Count</h3>
+                        <p class="text-muted mb-0">Total Orders</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center shadow-sm">
+                    <div class="card-body">
+                        <i class="fas fa-clock fa-3x text-warning mb-3"></i>
+                        <h3>@Model.Count(o => o.order.Status == "Proccessed")</h3>
+                        <p class="text-muted mb-0">Proccessed Orders</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center shadow-sm">
+                    <div class="card-body">
+                        <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                        <h3>@Model.Count(o => o.order.Status == "Completed")</h3>
+                        <p class="text-muted mb-0">Completed Orders</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-md-8 mx-auto">
+                <div class="card shadow-sm text-center p-5">
+                    <div class="card-body">
+                        <i class="fas fa-receipt fa-5x text-muted mb-4"></i>
+                        <h3>No orders yet</h3>
+                        <p class="text-muted">You haven't placed any orders. Start shopping to see your orders here!</p>
+                        <a asp-action="Shop" class="btn btn-primary btn-lg mt-3">
+                            <i class="fas fa-shopping-bag"></i> Browse Products
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Video Modal -->
+<div class="modal fade" id="videoModal" tabindex="-1" aria-labelledby="videoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="videoModalLabel">Product Video</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <video id="productVideo" class="w-100" controls>
+                    <source id="videoSource" src="" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Watch video button click
+            $('.watch-video-btn').click(function(e) {
+                e.preventDefault();
+                var videoUrl = $(this).data('video-url');
+                var productName = $(this).data('product-name');
+
+                $('#videoModalLabel').text(productName + ' - Product Video');
+                $('#videoSource').attr('src', videoUrl);
+                $('#productVideo')[0].load();
+
+                var videoModal = new bootstrap.Modal(document.getElementById('videoModal'));
+                videoModal.show();
+            });
+
+            // Stop video when modal is closed
+            $('#videoModal').on('hidden.bs.modal', function () {
+                $('#productVideo')[0].pause();
+                $('#productVideo')[0].currentTime = 0;
+            });
+
+            // Add fade-in animation to order cards
+            $('.card').each(function(index) {
+                $(this).css('opacity', '0').delay(index * 100).animate({ opacity: 1 }, 500);
+            });
+        });
+    </script>
+
+    <style>
+        .card {
+            transition: all 0.3s ease;
+        }
+
+            .card:hover {
+                box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+            }
+    </style>
+}

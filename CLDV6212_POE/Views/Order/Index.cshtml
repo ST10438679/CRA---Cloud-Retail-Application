@@ -1,0 +1,150 @@
+﻿@model IEnumerable<CLDV6212_POE.Models.Order>
+
+@{
+    ViewData["Title"] = "Orders";
+}
+
+<h1>Orders</h1>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Message"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (ViewBag.PeekedMessage != null)
+{
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        <strong>Queue Message:</strong> @ViewBag.PeekedMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="row mb-3">
+    <div class="col-md-6">
+        <form asp-action="Index" method="get" class="d-flex">
+            <input type="text" name="searchString" value="@ViewBag.SearchString"
+                   class="form-control me-2" placeholder="Search by Order ID, Customer ID, or Product ID" />
+            <button type="submit" class="btn btn-primary me-2">Search</button>
+            @if (!string.IsNullOrEmpty(ViewBag.SearchString))
+            {
+                <a asp-action="Index" class="btn btn-secondary">Clear</a>
+            }
+        </form>
+    </div>
+    <div class="col-md-6 text-end">
+        <a asp-action="Create" class="btn btn-primary">Create New Order</a>
+        <a asp-action="Index" class="btn btn-success ms-2">Refresh</a>
+    </div>
+</div>
+
+@if (Model != null && Model.Any())
+{
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.OrderNumber)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.CustomerNumber)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.ProductNumber)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.OrderDate)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Quantity)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Status)
+                    </th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.OrderNumber)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.CustomerNumber)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ProductNumber)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.OrderDate)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Quantity)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Status)
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a asp-action="Read" asp-route-partitionKey="@item.PartitionKey"
+                                   asp-route-rowKey="@item.RowKey" class="btn btn-sm btn-info">Details</a>
+                                <a asp-action="Update" asp-route-partitionKey="@item.PartitionKey"
+                                   asp-route-rowKey="@item.RowKey" class="btn btn-sm btn-warning">Update</a>
+                                <a asp-action="Delete" asp-route-partitionKey="@item.PartitionKey"
+                                   asp-route-rowKey="@item.RowKey" class="btn btn-sm btn-danger">Delete</a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <div class="alert alert-info" role="alert">
+        <h4 class="alert-heading">
+            @if (!string.IsNullOrEmpty(ViewBag.SearchString))
+            {
+                <text>No Orders Found for "@ViewBag.SearchString"</text>
+            }
+            else
+            {
+                <text>No Orders Found</text>
+            }
+        </h4>
+        <p>
+            @if (!string.IsNullOrEmpty(ViewBag.SearchString))
+            {
+                <text>Try a different search term or </text>
+                <a asp-action="Index" class="alert-link">view all orders</a>
+
+                <text>.</text>
+            }
+            else
+            {
+                <text>There are currently no orders in the system.</text>
+            }
+        </p>
+        @if (string.IsNullOrEmpty(ViewBag.SearchString))
+        {
+            <hr>
+            <p class="mb-0">
+                <a asp-action="Create" class="btn btn-primary">Create your first order</a>
+            </p>
+        }
+    </div>
+}

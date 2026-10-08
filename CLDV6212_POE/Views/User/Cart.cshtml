@@ -1,0 +1,310 @@
+﻿@model List<CLDV6212_POE.Controllers.UserController.CartItem>
+
+@{
+    ViewData["Title"] = "Shopping Cart";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col">
+            <h1><i class="fas fa-shopping-cart"></i> Your Shopping Cart</h1>
+            <hr>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            <i class="fas fa-check-circle"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+            <i class="fas fa-exclamation-circle"></i> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-list"></i> Cart Items (@Model.Count)</h5>
+                    </div>
+                    <div class="card-body">
+                        @foreach (var cartItem in Model)
+                        {
+                            var product = cartItem.Product;
+                            <div class="row cart-item mb-3 pb-3 border-bottom" data-product-id="@product.ProductNumber">
+                                <div class="col-md-3">
+                                    @if (!string.IsNullOrEmpty(product.ImageURL))
+                                    {
+                                        <img src="@product.ImageURL" class="img-fluid rounded" alt="@product.ProductName" style="max-height: 150px; object-fit: cover;">
+                                    }
+                                    else
+                                    {
+                                        <div class="bg-secondary rounded d-flex align-items-center justify-content-center" style="height: 150px;">
+                                            <i class="fas fa-box fa-3x text-white"></i>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="col-md-5">
+                                    <h5>@product.ProductName</h5>
+                                    <p class="text-muted">@product.ProductDescription</p>
+                                    <p class="text-muted small mb-0">
+                                        <strong>Product ID:</strong> @product.ProductNumber
+                                    </p>
+                                    @if (!string.IsNullOrEmpty(product.VideoURL))
+                                    {
+                                        <button class="btn btn-sm btn-outline-info mt-2 watch-video-btn"
+                                                data-video-url="@product.VideoURL"
+                                                data-product-name="@product.ProductName">
+                                            <i class="fas fa-play-circle"></i> Watch Video
+                                        </button>
+                                    }
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <!-- Quantity Control -->
+                                    <div class="mb-2">
+                                        <label class="form-label small"><strong>Quantity:</strong></label>
+                                        <div class="input-group input-group-sm" style="max-width: 130px; margin-left: auto;">
+                                            <button class="btn btn-outline-secondary" type="button" onclick="decreaseCartQuantity('@product.ProductNumber')">
+                                                <i class="fas fa-minus"></i>
+                                            </button>
+                                            <input type="number" class="form-control text-center cart-quantity-input"
+                                                   id="cart-qty-@product.ProductNumber"
+                                                   value="@cartItem.Quantity"
+                                                   min="1"
+                                                   max="99"
+                                                   data-product-id="@product.ProductNumber"
+                                                   onchange="updateCartQuantity('@product.ProductNumber', this.value)">
+                                            <button class="btn btn-outline-secondary" type="button" onclick="increaseCartQuantity('@product.ProductNumber')">
+                                                <i class="fas fa-plus"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-danger btn-sm remove-item" data-product-id="@product.ProductNumber">
+                                        <i class="fas fa-trash"></i> Remove
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card shadow-sm sticky-top" style="top: 20px;">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-receipt"></i> Order Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Total Items:</span>
+                            <strong id="item-count">@Model.Count</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Total Quantity:</span>
+                            <strong id="total-quantity">@Model.Sum(c => c.Quantity)</strong>
+                        </div>
+                        <hr>
+                        <p class="text-muted small">
+                            <i class="fas fa-info-circle"></i> Your order will be processed and you can track it in the "My Orders" section.
+                        </p>
+                        <button id="checkout-btn" class="btn btn-success w-100 btn-lg">
+                            <i class="fas fa-check-circle"></i> Proceed to Checkout
+                        </button>
+                        <a asp-action="Shop" class="btn btn-outline-primary w-100 mt-2">
+                            <i class="fas fa-arrow-left"></i> Continue Shopping
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-md-8 mx-auto">
+                <div class="card shadow-sm text-center p-5">
+                    <div class="card-body">
+                        <i class="fas fa-shopping-cart fa-5x text-muted mb-4"></i>
+                        <h3>Your cart is empty</h3>
+                        <p class="text-muted">Start shopping and add items to your cart!</p>
+                        <a asp-action="Shop" class="btn btn-primary btn-lg mt-3">
+                            <i class="fas fa-shopping-bag"></i> Browse Products
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Video Modal -->
+<div class="modal fade" id="videoModal" tabindex="-1" aria-labelledby="videoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="videoModalLabel">Product Video</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <video id="productVideo" class="w-100" controls>
+                    <source id="videoSource" src="" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Quantity control functions
+        function increaseCartQuantity(productId) {
+            var input = document.getElementById('cart-qty-' + productId);
+            var currentValue = parseInt(input.value) || 1;
+            if (currentValue < 99) {
+                input.value = currentValue + 1;
+                updateCartQuantity(productId, input.value);
+            }
+        }
+
+        function decreaseCartQuantity(productId) {
+            var input = document.getElementById('cart-qty-' + productId);
+            var currentValue = parseInt(input.value) || 1;
+            if (currentValue > 1) {
+                input.value = currentValue - 1;
+                updateCartQuantity(productId, input.value);
+            }
+        }
+
+        function updateCartQuantity(productId, quantity) {
+            $.ajax({
+                url: '@Url.Action("UpdateCartQuantity", "User")',
+                type: 'POST',
+                data: {
+                    productId: productId,
+                    quantity: parseInt(quantity)
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Update total quantity display
+                        $('#total-quantity').text(response.totalQuantity);
+                    }
+                },
+                error: function() {
+                    console.log('Error updating quantity');
+                }
+            });
+        }
+
+        $(document).ready(function() {
+            // Watch video button click
+            $('.watch-video-btn').click(function(e) {
+                e.preventDefault();
+                var videoUrl = $(this).data('video-url');
+                var productName = $(this).data('product-name');
+
+                $('#videoModalLabel').text(productName + ' - Product Video');
+                $('#videoSource').attr('src', videoUrl);
+                $('#productVideo')[0].load();
+
+                var videoModal = new bootstrap.Modal(document.getElementById('videoModal'));
+                videoModal.show();
+            });
+
+            // Stop video when modal is closed
+            $('#videoModal').on('hidden.bs.modal', function () {
+                $('#productVideo')[0].pause();
+                $('#productVideo')[0].currentTime = 0;
+            });
+
+            // Remove item from cart
+            $('.remove-item').click(function() {
+                var productId = $(this).data('product-id');
+                var cartItem = $(this).closest('.cart-item');
+
+                if (confirm('Are you sure you want to remove this item from your cart?')) {
+                    $.ajax({
+                        url: '@Url.Action("RemoveFromCart", "User")',
+                        type: 'POST',
+                        data: { productId: productId },
+                        success: function(response) {
+                            if (response.success) {
+                                // Remove item with animation
+                                cartItem.fadeOut(300, function() {
+                                    $(this).remove();
+
+                                    // Update cart count
+                                    $('.badge').text(response.cartCount);
+                                    $('#item-count').text(response.cartCount);
+
+                                    // If cart is empty, reload page
+                                    if (response.cartCount === 0) {
+                                        location.reload();
+                                    }
+                                });
+                            } else {
+                                alert(response.message);
+                            }
+                        },
+                        error: function() {
+                            alert('Error removing item from cart');
+                        }
+                    });
+                }
+            });
+
+            // Checkout
+            $('#checkout-btn').click(function() {
+                var button = $(this);
+                var originalText = button.html();
+
+                // Collect cart items with quantities
+                var cartItems = [];
+                $('.cart-quantity-input').each(function() {
+                    var productId = $(this).data('product-id');
+                    var quantity = parseInt($(this).val()) || 1;
+                    cartItems.push({ productId: productId, quantity: quantity });
+                });
+
+                if (confirm('Are you sure you want to place this order?')) {
+                    button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Processing...');
+
+                    $.ajax({
+                        url: '@Url.Action("Checkout", "User")',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify(cartItems),
+                        success: function(response) {
+                            window.location.href = '@Url.Action("Orders", "User")';
+                        },
+                        error: function() {
+                            alert('Error processing checkout');
+                            button.html(originalText).prop('disabled', false);
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+
+    <style>
+        .cart-quantity-input::-webkit-inner-spin-button,
+        .cart-quantity-input::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .cart-quantity-input {
+            -moz-appearance: textfield;
+        }
+    </style>
+}

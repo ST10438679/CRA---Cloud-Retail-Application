@@ -1,0 +1,217 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<style>
+    :root {
+        --primary-purple: #6f42c1;
+        --secondary-purple: #8e5cdb;
+        --light-purple: #f8f5ff;
+        --dark-purple: #4a2c7a;
+        --accent-purple: #9d6ce8;
+    }
+
+    body {
+        background: linear-gradient(135deg, var(--light-purple) 0%, #e8dcf7 100%);
+        min-height: 100vh;
+    }
+
+    .hero-section {
+        background: linear-gradient(135deg, var(--primary-purple) 0%, var(--secondary-purple) 100%);
+        color: white;
+        padding: 4rem 0;
+        margin-bottom: 3rem;
+        border-radius: 0 0 50px 50px;
+        box-shadow: 0 10px 30px rgba(111, 66, 193, 0.3);
+        margin-left: -12px;
+        margin-right: -12px;
+        margin-top: -24px;
+    }
+
+        .hero-section h1 {
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 1rem;
+        }
+
+        .hero-section p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+        }
+
+    .quick-access-cards {
+        padding: 0 2rem;
+    }
+
+    .access-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 6px 20px rgba(111, 66, 193, 0.15);
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        height: 100%;
+        cursor: pointer;
+    }
+
+        .access-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(111, 66, 193, 0.25);
+            border-color: var(--accent-purple);
+        }
+
+        .access-card i {
+            font-size: 2.5rem;
+            color: var(--primary-purple);
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .access-card:hover i {
+            color: var(--secondary-purple);
+            transform: scale(1.1);
+        }
+
+        .access-card h3 {
+            color: var(--dark-purple);
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+            font-size: 1.1rem;
+        }
+
+        .access-card p {
+            color: #666;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+    .btn-purple {
+        background: linear-gradient(135deg, var(--primary-purple) 0%, var(--secondary-purple) 100%);
+        border: none;
+        color: white;
+        padding: 0.6rem 1.5rem;
+        border-radius: 20px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        margin-top: 0.8rem;
+    }
+
+        .btn-purple:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(111, 66, 193, 0.4);
+            color: white;
+        }
+
+    .section-title {
+        text-align: center;
+        color: var(--dark-purple);
+        font-weight: 700;
+        margin-bottom: 3rem;
+        position: relative;
+    }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(135deg, var(--primary-purple) 0%, var(--accent-purple) 100%);
+            border-radius: 2px;
+        }
+
+    @@media (max-width: 768px) {
+        .hero-section {
+            padding: 2.5rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .quick-access-cards {
+            padding: 0 1rem;
+        }
+
+        .access-card {
+            margin-bottom: 2rem;
+        }
+    }
+</style>
+
+<div class="hero-section">
+    <div class="container">
+        <div class="text-center">
+            <h1 class="display-4">Welcome To ABC Retail</h1>
+            <p>We Guarantee Satisfaction With Our Products</p>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="quick-access-cards">
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-6 col-lg-3">
+                <div class="access-card" onclick="navigateTo('customer/index')">
+                    <i class="fas fa-users"></i>
+                    <h3>Customer</h3>
+                    <p>Manage customer information, profiles, and customer service</p>
+                    <a href="#" class="btn-purple">View Customers</a>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="access-card" onclick="navigateTo('product/index')">
+                    <i class="fas fa-box"></i>
+                    <h3>Product</h3>
+                    <p>Browse and manage product catalog, inventory, and specifications</p>
+                    <a href="#" class="btn-purple">Manage Products</a>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="access-card" onclick="navigateTo('order/index')">
+                    <i class="fas fa-shopping-cart"></i>
+                    <h3>Order</h3>
+                    <p>Process orders, track shipments, and manage order history</p>
+                    <a href="#" class="btn-purple">View Orders</a>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="access-card" onclick="navigateTo('contracts/index')">
+                    <i class="fas fa-file-contract"></i>
+                    <h3>Contracts</h3>
+                    <p>Manage contracts, agreements, and business documentation</p>
+                    <a href="#" class="btn-purple">View Contracts</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function navigateTo(section) {
+            window.location.href = '/' + section;
+        }
+
+        // Add some interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.access-card');
+
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-10px) scale(1.02)';
+                });
+
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+        });
+    </script>
+}

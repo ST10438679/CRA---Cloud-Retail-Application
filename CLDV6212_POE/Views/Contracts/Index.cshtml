@@ -1,0 +1,138 @@
+﻿@model CLDV6212_POE.Models.Contracts
+
+@{
+    ViewData["Title"] = "File Upload";
+}
+
+<div class="container mt-4">
+    <h2>@ViewData["Title"]</h2>
+
+    <!-- Success/Error Messages -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Upload Form -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4 class="mb-0">Upload New File</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="Upload" enctype="multipart/form-data" method="post">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="customerId" class="form-label">Select Customer</label>
+                            <select name="customerId" id="customerId" class="form-select" required>
+                                <option value="">-- Select a Customer --</option>
+                                @foreach (var customer in Model.Customers)
+                                {
+                                    <option value="@customer.CustomerNumber">
+                                        @customer.CustomerNumber - @customer.CustomerName @customer.CustomerSurname
+                                    </option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="file" class="form-label">Select File</label>
+                            <input type="file" name="file" id="file" class="form-control" required>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-upload"></i> Upload File
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Uploaded Files List -->
+    <div class="card">
+        <div class="card-header">
+            <h4 class="mb-0">Uploaded Files</h4>
+        </div>
+        <div class="card-body">
+            @if (Model.UploadedFiles.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Original File Name</th>
+                                <th>Customer ID</th>
+                                <th>Customer Name</th>
+                                <th>Upload Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var file in Model.UploadedFiles)
+                            {
+                                <tr>
+                                    <td>@file.OriginalFileName</td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(file.CustomerId))
+                                        {
+                                            <span class="badge bg-primary">@file.CustomerId</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">N/A</span>
+                                        }
+                                    </td>
+                                    <td>@(file.CustomerName ?? "Unknown")</td>
+                                    <td>@file.UploadDate.ToString("yyyy-MM-dd HH:mm")</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a asp-action="Download" asp-route-fileName="@file.FileName"
+                                               class="btn btn-sm btn-success" title="Download">
+                                                <i class="fas fa-download"></i>
+                                            </a>
+                                            <form asp-action="Delete" method="post" style="display: inline;"
+                                                  onsubmit="return confirm('Are you sure you want to delete this file?')">
+                                                <input type="hidden" name="fileName" value="@file.FileName" />
+                                                <button type="submit" class="btn btn-sm btn-danger" title="Delete">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center text-muted py-4">
+                    <i class="fas fa-folder-open fa-3x mb-3"></i>
+                    <p>No files uploaded yet.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Auto-dismiss alerts after 5 seconds
+        setTimeout(function() {
+            $('.alert').alert('close');
+        }, 5000);
+    </script>
+}
